@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html manifest="pinyin.manifest">
+
+<head>
+    <meta http-equiv=Content-Type content="text/html;charset=utf-8">
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <title>汉字学习</title>
+
+</head>
+<link rel="stylesheet" type="text/css" href="pinyin.css">
+<style>
+    .bg {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        z-index: 200000;
+        top: 0;
+        left: 0;
+        opacity: 0.5;
+    }
+</style>
+
+<body>
+<!--
+<nav>
+    <a class="nav-link" href="hanzi.html">汉字学习</a>
+    <a class="nav-link" href="pinyin.html">拼音学习</a>
+    <a class="nav-link" href="bihua.html">笔画学习</a>
+</nav>
+-->
+<div class="container">
+    <div>
+        <input type="text" style="width:250px;height: 30px;float: left;display: none;" placeholder="在此处输入要学习的汉字"
+               id="pyText"
+        >
+        <select id="class" style="float: left;">
+            <option value="一年级上">一年级上</option>
+            <option value="一年级下">一年级下</option>
+            <option value="二年级上">二年级上</option>
+            <option value="二年级下">二年级下</option>
+            <option value="三年级上">三年级上</option>
+            <option value="三年级下">三年级下</option>
+            <option value="四年级上">四年级上</option>
+            <option value="四年级下">四年级下</option>
+            <option value="五年级上">五年级上</option>
+            <option value="六年级上">六年级上</option>
+            <option value="六年级下">六年级下</option>
+        </select>
+        <select id="selectType" style="float: left;">
+            <option value="顺序">顺序</option>
+            <option value="随机">随机</option>
+        </select>
+
+
+        <input type="button" style="height: 42px;float: left;margin: 2px;font-size: 30px;" id="btnStart" value="开始学习"/>
+        <input type="button" style="height: 42px;float: left;margin: 2px;font-size: 30px;" id="btnLearnYourName"
+               value="专练"/>
+
+
+        <input type="button" style="height: 42px;float: left;margin: 2px;font-size: 30px;" id="btnBgMusic"
+               value="背景音乐"/>
+        <input type="button" style="height: 42px;float: left;margin: 2px;font-size: 30px;" id="btnDoubleWrite"
+               value="重写"/>
+
+    </div>
+    <div style="clear: both;"><span>拼音：</span><span id="py"></span><span style="padding-left: 20px; " id="tips">小朋友：点击上面的按钮进行学习！</span>
+    </div>
+    <div style="float: left;clear: both;">
+        <div style="float: left;" id="pyShow"></div>
+    </div>
+
+    <div id="pySelect"></div>
+
+    <audio id="pymp3" src="" allow="autoplay"></audio>
+    <audio id="bgmp3" src="/hz/media/background.m4a" autoplay="autoplay" allow="autoplay" loop="loop"
+           volume="0.1"></audio>
+</div>
+<script src="cnchar.draw.min.js"></script>
+<script src="cnclass.js"></script>
+<script src="cnchar.min.js"></script>
+
+<!-- import cnchar voice from cdn -->
+<script src="cnchar-voice.js"></script>
+
+
+<script src="jquery.min.js"></script>
+<script type="text/javascript">
+
+
+    var hasLearned = [];
+    var hasLearnedIndex = 0;
+    var hasLearnedCount = 0;
+    var lastLearnedChar = "";
+    var lastLearnedType = "";
+    var learnType = 0;
+    var yourName = "";
+    var bgmp3 = document.getElementById("bgmp3");
+    var bgmp3Play = false;
+    cnchar.setResourceBase('http://localhost:63342/cnchar-data');
+
+    $(document).ready(function () {
+
+        $.get('/hz/cnchar-data/draw/一.json', function (data) {
+
+        }).fail(function (err) {
+            cnchar.setResourceBase('https://unpkg.com/cnchar-data@latest/');
+        });
+
+
+        //change class
+        $("#class").change(function () {
+            hasLearned = [];
+            hasLearnedIndex = 0;
+        })
+
+        // click duoble write
+        $("#btnDoubleWrite").click(function () {
+            showBiHua(lastLearnedChar, 'btnDoubleWrite');
+            $('#btnStart').val('继续学习');
+        })
+
+        // click bg music
+        $("#btnBgMusic").click(function () {
+            if (bgmp3Play) {
+                bgmp3.pause();
+                bgmp3Play = false;
+                $('#btnBgMusic').val('背景音乐');
+            } else {
+                bgmp3.play();
+                bgmp3Play = true;
+                $('#btnBgMusic').val('关闭音乐');
+            }
+        })
+
+        $('#btnStart').on('click', function () {
+
+            var classid = $('#class').val();
+            var selectType = $('#selectType').val();
+            var charset = cn_dict[classid];
+            // debugger
+            if (selectType == "随机") {
+                // get a random char from charset
+
+                var char = charset[Math.floor(Math.random() * charset.length)];
+                while (hasLearned.indexOf(char) != -1) {
+                    char = charset[Math.floor(Math.random() * charset.length)];
+                    if (hasLearned.length == charset.length) {
+                        showTips("已经学完了", 'green');
+                        hasLearned= [];
+                        $('#btnStart').trigger('click');
+                        //return;
+                    }
+                    break;
+                }
+                hasLearned.push(char);
+
+                var py = char.split('(')[1].split(')')[0];
+                text = char.replace(/\(.*\)/g, "");
+                // var py = text.spell('tone');
+                $('#py').text(py);
+                showBiHua(text)
+            }
+            if (selectType == "顺序") {
+                if (hasLearnedIndex >= charset.length) {
+                    showTips("已经学完了", 'green');
+                    hasLearnedIndex = 0;
+                    $('#btnStart').trigger('click');
+                    // return;
+                }
+                var char = charset[hasLearnedIndex];
+                hasLearnedIndex++;
+                var py = char.split('(')[1].split(')')[0];
+                text = char.replace(/\(.*\)/g, "");
+                // var py = text.spell('tone');
+                $('#py').text(py);
+                showBiHua(text, 'btnStart')
+            }
+
+
+        })//.trigger('click');
+
+
+        $('#btnLearnYourName').on('click', function () {
+
+            if (yourName == "") {
+                yourName = prompt("输入你专门要训练的汉字，例如你的名字", "张皓添");
+            }
+            if (hasLearnedIndex < yourName.length) {
+                var char = yourName[hasLearnedIndex];
+                hasLearnedIndex++;
+                var py = char.spell('tone');
+                $('#py').text(py);
+                showBiHua(char, 'btnLearnYourName')
+            } else {
+                hasLearnedIndex = 0;
+                showBiHua(char, 'btnLearnYourName')
+                //showTips("已经学完了", 'green');
+            }
+
+
+        });//end click btnLearnYourName
+
+    });
+
+    function charToPinyin(char) {
+        var py = char.split('(')[1].split(')')[0];
+    }
+
+
+    function showBiHua(text, learnType) {
+        // show(pys);
+        // cnchar.voice(text)
+        lastLearnedtype = learnType;
+        try {
+            $('#pymp3').attr('src', 'https://tts.baidu.com/text2audio?tex=' + encodeURI(text) + '&cuid=dict&lan=ZH&ctp=1&pdt=30&vol=90');
+            $('#pymp3')[0].play();
+        } catch (e) {
+            setTimeout(function () {
+                $('#pymp3')[0].play();
+            }, 1000)
+        }
+        lastLearnedChar = text;
+
+        if (text.trim().length > 0) {
+
+            var winSize = $(window).width() > $(window).height() ? $(window).height() : $(window).width();
+            winSize = winSize - 5;
+            var startTest = function () {
+                showTips('请按笔顺输入！');
+                $('body').removeClass('bg')
+                cncharDraw(text, {
+                    el: '#pyShow',
+                    type: 'test',
+                    strokeColor: 'red',
+                    strokeWidth: 2,
+                    style: {length: winSize},
+                    test: {
+                        onTestStatus: function (data) {
+                            // debugger;
+                            if (data.status === 'complete') {
+                                //show tips
+                                showTips('你真棒，写对了！', 'green');
+                                if (learnType == 'btnStart') {
+                                    $('#btnStart').trigger('click');
+                                }
+                                if (learnType == 'btnLearnYourName') {
+                                    $('#btnLearnYourName').trigger('click');
+                                }
+
+                            } else if (data.status === 'mistake') {
+                                //show tips
+                                showTips('笔画写错了，再试试！', 'red');
+                            } else if (data.status === 'correct') {
+                                //show tips
+                                showTips('笔画写对，真棒！', 'green');
+                            }
+                        }
+                    }
+                });
+            }
+            // debugger;
+            // $('body').addClass('bg')
+            showTips('正在生成笔画，请耐心待候...');
+            cncharDraw(text, {
+                el: '#pyShow',
+                type: 'animation',
+                strokeColor: 'red',
+                strokeWidth: 2,
+                style: {length: winSize, float: 'left', showOutline: false},
+                animation: {
+                    speed: 1000,
+                    animateComplete: true,
+                    animateComplete: startTest,
+                }
+
+            });
+        }
+    }
+
+
+    //show tips with color
+    function showTips(text, color) {
+        text = '<span style="color:' + color + '">' + text + '</span>';
+        $('#tips').html(text);
+    }
+
+</script>
+
+</body>
+
+
+</html>
