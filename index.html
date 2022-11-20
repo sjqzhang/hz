@@ -218,9 +218,11 @@
                 showBiHua(char, 'btnLearnYourName')
             } else {
                 hasLearnedIndex = 0;
-                char = yourName[hasLearnedIndex];
+                var char = yourName[hasLearnedIndex];
                 showTips("已经学完了,马上重新学习！", 'blue');
                 setTimeout(function () {
+                    var py = char.spell('tone');
+                    $('#py').text(py);
                     showBiHua(char, 'btnLearnYourName')
                 }, 1000);
 
