@@ -47,8 +47,16 @@
             <option value="六年级下">六年级下</option>
         </select>
         <select id="selectType" style="float: left;">
-            <option value="顺序">顺序</option>
             <option value="随机">随机</option>
+            <option value="顺序">顺序</option>
+
+        </select>
+        <select id="speed" style="float: left;width: 60px;">
+            <option value="1000">慢1</option>
+            <option value="300" selected>中</option>
+            <option value="100">快</option>
+            <option value="2000">慢2</option>
+
         </select>
 
 
@@ -137,16 +145,32 @@
             var classid = $('#class').val();
             var selectType = $('#selectType').val();
             var charset = cn_dict[classid];
+
+            // function getChar(charset, hasLearned) {
+            //     //difference set charset and hasLearned
+            //     var diff = charset.filter(function (v) {
+            //         return hasLearned.indexOf(v) === -1;
+            //     });
+            //     if(diff.length > 0) {
+            //         var index = Math.floor(Math.random() * diff.length);
+            //         return diff[index];
+            //     } else {
+            //         return '';
+            //     }
+            //
+            // }
+
+            //get random char from difference set of charset and hasLearned
+            // var char = getChar(charset, hasLearned);
             // debugger
             if (selectType == "随机") {
                 // get a random char from charset
-
                 var char = charset[Math.floor(Math.random() * charset.length)];
                 while (hasLearned.indexOf(char) != -1) {
                     char = charset[Math.floor(Math.random() * charset.length)];
                     if (hasLearned.length == charset.length) {
-                        showTips("已经学完了", 'green');
-                        hasLearned= [];
+                        showTips("已经学完了,马上重新学习！", 'blue');
+                        hasLearned = [];
                         $('#btnStart').trigger('click');
                         //return;
                     }
@@ -158,11 +182,11 @@
                 text = char.replace(/\(.*\)/g, "");
                 // var py = text.spell('tone');
                 $('#py').text(py);
-                showBiHua(text)
+                showBiHua(text,'btnStart')
             }
             if (selectType == "顺序") {
                 if (hasLearnedIndex >= charset.length) {
-                    showTips("已经学完了", 'green');
+                    showTips("已经学完了,马上重新学习！", 'blue');
                     hasLearnedIndex = 0;
                     $('#btnStart').trigger('click');
                     // return;
@@ -183,6 +207,7 @@
         $('#btnLearnYourName').on('click', function () {
 
             if (yourName == "") {
+                hasLearnedIndex=0;
                 yourName = prompt("输入你专门要训练的汉字，例如你的名字", "张皓添");
             }
             if (hasLearnedIndex < yourName.length) {
@@ -193,7 +218,12 @@
                 showBiHua(char, 'btnLearnYourName')
             } else {
                 hasLearnedIndex = 0;
-                showBiHua(char, 'btnLearnYourName')
+                char = yourName[hasLearnedIndex];
+                showTips("已经学完了,马上重新学习！", 'blue');
+                setTimeout(function () {
+                    showBiHua(char, 'btnLearnYourName')
+                }, 1000);
+
                 //showTips("已经学完了", 'green');
             }
 
@@ -210,14 +240,21 @@
     function showBiHua(text, learnType) {
         // show(pys);
         // cnchar.voice(text)
+        if(text===undefined){
+            text=''
+        }
         lastLearnedtype = learnType;
         try {
             $('#pymp3').attr('src', 'https://tts.baidu.com/text2audio?tex=' + encodeURI(text) + '&cuid=dict&lan=ZH&ctp=1&pdt=30&vol=90');
             $('#pymp3')[0].play();
         } catch (e) {
             setTimeout(function () {
-                $('#pymp3')[0].play();
-            }, 1000)
+                try {
+                    $('#pymp3')[0].play();
+                } catch (e) {
+                    console.log(e);
+                }
+            }, 2000)
         }
         lastLearnedChar = text;
 
@@ -260,6 +297,9 @@
             }
             // debugger;
             // $('body').addClass('bg')
+            //get speed
+            var speed = $('#speed').val();
+            speed = parseInt(speed);
             showTips('正在生成笔画，请耐心待候...');
             cncharDraw(text, {
                 el: '#pyShow',
@@ -268,7 +308,8 @@
                 strokeWidth: 2,
                 style: {length: winSize, float: 'left', showOutline: false},
                 animation: {
-                    speed: 1000,
+
+                    delayBetweenStrokes: speed,
                     animateComplete: true,
                     animateComplete: startTest,
                 }
