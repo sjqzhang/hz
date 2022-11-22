@@ -84,14 +84,17 @@
     </div>
 
 </div>
+
+<!-- import jquery mobile from net cdn -->
+
 <script src="cnchar.draw.min.js"></script>
 <script src="cnclass.js"></script>
 <script src="cnchar.min.js"></script>
 <!-- import cnchar voice from cdn -->
 <script src="cnchar-voice.js"></script>
 
-
 <script src="jquery.min.js"></script>
+<script src="jquery.mobile-1.4.5.min.js"></script>
 <script type="text/javascript">
 
 
@@ -107,6 +110,15 @@
     cnchar.setResourceBase('http://localhost:63342/cnchar-data');
 
     $(document).ready(function () {
+
+        $(window).on('resize', function () {
+            calcWindowSize()
+        });
+        $(window).on("orientationchange", function () {
+
+           calcWindowSize()
+
+        });
 
         calcWindowSize()
 
@@ -245,17 +257,17 @@
     function calcWindowSize() {
         var width = $(window).width();
         var height = $(window).height();
-        var topContainer= $('#topContainer');
+        var topContainer = $('#topContainer');
         var bottomContainer = $('#bottomContainer');
 
-        if (height>width) {
+        if (height > width) {
             topContainer.css('height', (height - width) + 'px');
             topContainer.css('width', width + 'px');
             topContainer.css('float', 'left')
             bottomContainer.css('float', 'right');
 
         } else {
-            topContainer.css('width', (width- height - 5) + 'px');
+            topContainer.css('width', (width - height - 5) + 'px');
             topContainer.css('height', height + 'px');
             topContainer.css('float', 'left')
             bottomContainer.css('float', 'right');
