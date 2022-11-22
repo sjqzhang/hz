@@ -267,10 +267,11 @@
             bottomContainer.css('float', 'right');
 
         } else {
-            topContainer.css('width', (width - height - 5) + 'px');
+            topContainer.css('width', (width - height - 4) + 'px');
             topContainer.css('height', height + 'px');
             topContainer.css('float', 'left')
             bottomContainer.css('float', 'right');
+            bottomContainer.css('height', height + 'px');
         }
 
     }
@@ -300,11 +301,11 @@
 
         if (text.trim().length > 0) {
 
-            debugger
+            // debugger
 
 
             var winSize = $(window).width() > $(window).height() ? $(window).height() : $(window).width();
-            winSize = winSize - 3;
+            // winSize = winSize ;
             var startTest = function () {
                 showTips('请按笔顺输入！');
                 $('body').removeClass('bg')
