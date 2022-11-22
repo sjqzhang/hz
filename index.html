@@ -21,16 +21,12 @@
 </style>
 
 <body>
-<!--
-<nav>
-    <a class="nav-link" href="hanzi.html">汉字学习</a>
-    <a class="nav-link" href="pinyin.html">拼音学习</a>
-    <a class="nav-link" href="bihua.html">笔画学习</a>
-</nav>
--->
+
 <div class="container">
-    <div>
-        <input type="text" style="width:250px;height: 30px;float: left;display: none;" placeholder="在此处输入要学习的汉字"
+
+    <div id="topContainer" style="border: 0px dashed gray;">
+        <input type="text" style="width:250px;height: 30px;float: left;display: none;"
+               placeholder="在此处输入要学习的汉字"
                id="pyText"
         >
         <select id="class" style="float: left;">
@@ -60,7 +56,8 @@
         </select>
 
 
-        <input type="button" style="height: 42px;float: left;margin: 2px;font-size: 30px;" id="btnStart" value="开始学习"/>
+        <input type="button" style="height: 42px;float: left;margin: 2px;font-size: 30px;" id="btnStart"
+               value="开始学习"/>
         <input type="button" style="height: 42px;float: left;margin: 2px;font-size: 30px;" id="btnLearnYourName"
                value="专练"/>
 
@@ -70,18 +67,22 @@
         <input type="button" style="height: 42px;float: left;margin: 2px;font-size: 30px;" id="btnDoubleWrite"
                value="重写"/>
 
-    </div>
-    <div style="clear: both;"><span>拼音：</span><span id="py"></span><span style="padding-left: 20px; " id="tips">提示：小朋友，点击上面的按钮，等系统自动显示完笔顺进行跟练学习,当你输入正确的笔顺系统会自动进行汉字切换。</span>
-    </div>
-    <div style="float: left;clear: both;">
-        <div style="float: left;" id="pyShow"></div>
+        <div style="clear: both;"><span>拼音：</span><span id="py"></span><span style="padding-left: 20px; " id="tips">提示：小朋友，点击上面的按钮，等系统自动显示完笔顺进行跟练学习,当你输入正确的笔顺系统会自动进行汉字切换。</span>
+        </div>
     </div>
 
-    <div id="pySelect"></div>
+    <div id="bottomContainer" style="border: 0px dashed gray">
 
-    <audio id="pymp3" src="" allow="autoplay"></audio>
-    <audio id="bgmp3" src="" autoplay="autoplay" allow="autoplay" loop="loop"
-           volume="0.1"></audio>
+        <div style="float: left;clear: both;">
+            <div style="float: left;" id="pyShow"></div>
+        </div>
+
+
+        <audio id="pymp3" src="" allow="autoplay"></audio>
+        <audio id="bgmp3" src="" autoplay="autoplay" allow="autoplay" loop="loop"
+               volume="0.1"></audio>
+    </div>
+
 </div>
 <script src="cnchar.draw.min.js"></script>
 <script src="cnclass.js"></script>
@@ -106,6 +107,8 @@
     cnchar.setResourceBase('http://localhost:63342/cnchar-data');
 
     $(document).ready(function () {
+
+        calcWindowSize()
 
         $.get('/hz/cnchar-data/draw/一.json', function (data) {
 
@@ -239,8 +242,30 @@
         var py = char.split('(')[1].split(')')[0];
     }
 
+    function calcWindowSize() {
+        var width = $(window).width();
+        var height = $(window).height();
+        var topContainer= $('#topContainer');
+        var bottomContainer = $('#bottomContainer');
+
+        if (height>width) {
+            topContainer.css('height', (height - width) + 'px');
+            topContainer.css('width', width + 'px');
+            topContainer.css('float', 'left')
+            bottomContainer.css('float', 'right');
+
+        } else {
+            topContainer.css('width', (width- height - 5) + 'px');
+            topContainer.css('height', height + 'px');
+            topContainer.css('float', 'left')
+            bottomContainer.css('float', 'right');
+        }
+
+    }
+
 
     function showBiHua(text, learnType) {
+        calcWindowSize()
         // show(pys);
         // cnchar.voice(text)
         if (text === undefined) {
@@ -263,8 +288,11 @@
 
         if (text.trim().length > 0) {
 
+            debugger
+
+
             var winSize = $(window).width() > $(window).height() ? $(window).height() : $(window).width();
-            winSize = winSize - 5;
+            winSize = winSize - 3;
             var startTest = function () {
                 showTips('请按笔顺输入！');
                 $('body').removeClass('bg')
