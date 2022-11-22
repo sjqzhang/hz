@@ -80,13 +80,12 @@
     <div id="pySelect"></div>
 
     <audio id="pymp3" src="" allow="autoplay"></audio>
-    <audio id="bgmp3" src="/hz/media/background.m4a" autoplay="autoplay" allow="autoplay" loop="loop"
+    <audio id="bgmp3" src="" autoplay="autoplay" allow="autoplay" loop="loop"
            volume="0.1"></audio>
 </div>
 <script src="cnchar.draw.min.js"></script>
 <script src="cnclass.js"></script>
 <script src="cnchar.min.js"></script>
-
 <!-- import cnchar voice from cdn -->
 <script src="cnchar-voice.js"></script>
 
@@ -129,6 +128,8 @@
 
         // click bg music
         $("#btnBgMusic").click(function () {
+            //set bgmp3 src attribute
+            bgmp3.src = '/hz/media/background.m4a'
             if (bgmp3Play) {
                 bgmp3.pause();
                 bgmp3Play = false;
@@ -182,7 +183,7 @@
                 text = char.replace(/\(.*\)/g, "");
                 // var py = text.spell('tone');
                 $('#py').text(py);
-                showBiHua(text,'btnStart')
+                showBiHua(text, 'btnStart')
             }
             if (selectType == "顺序") {
                 if (hasLearnedIndex >= charset.length) {
@@ -207,7 +208,7 @@
         $('#btnLearnYourName').on('click', function () {
 
             if (yourName == "") {
-                hasLearnedIndex=0;
+                hasLearnedIndex = 0;
                 yourName = prompt("输入你专门要训练的汉字，例如你的名字", "张皓添");
             }
             if (hasLearnedIndex < yourName.length) {
@@ -242,8 +243,8 @@
     function showBiHua(text, learnType) {
         // show(pys);
         // cnchar.voice(text)
-        if(text===undefined){
-            text=''
+        if (text === undefined) {
+            text = ''
         }
         lastLearnedtype = learnType;
         try {
