@@ -26,7 +26,7 @@
 <body>
 
 <div class="container">
-
+<div data-role="header" data-theme="b" data-position="fixed" data-tap-toggle="false">
     <div id="topContainer" style="border: 0px dashed gray;">
         <input type="text" style="width:250px;height: 30px;float: left;display: none;"
                placeholder="在此处输入要学习的汉字"
@@ -91,6 +91,7 @@
 </div>
 
 <!-- import jquery mobile from net cdn -->
+    <div data-role="footer" data-position="fixed" data-tap-toggle="false">
 
 <script src="cnchar.draw.min.js"></script>
 <script src="cnclass.js"></script>
@@ -122,6 +123,7 @@
         $(window).on("orientationchange", function () {
 
             calcWindowSize()
+            showBiHua(lastLearnedChar, lastLearnedType);
 
         });
 
@@ -355,7 +357,7 @@
             //set time out
             timeOut=setTimeout(function () {
               enableFormElement()
-            }, 10000)
+            }, 30000)
 
             disableFormElement()
             //get speed
