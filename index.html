@@ -291,7 +291,7 @@
         if (text === undefined) {
             text = ''
         }
-        lastLearnedtype = learnType;
+        lastLearnedType = learnType;
         try {
             $('#pymp3').attr('src', 'https://tts.baidu.com/text2audio?tex=' + encodeURI(text) + '&cuid=dict&lan=ZH&ctp=1&pdt=30&vol=90');
             $('#pymp3')[0].play();
